@@ -1,4 +1,5 @@
 // app/(auth)/login.tsx
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -10,15 +11,26 @@ import {
   View,
 } from "react-native";
 
-// Contenedor base con fondo oscuro y padding
-import ScreenContainer from "../../src/components/common/ScreenContainer";
-
-// SVG del logo
 import LogoS from "../../assets/LogoS.svg";
+import ScreenContainer from "../../src/components/common/ScreenContainer";
+import useAuth from "../../src/hooks/useAuth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const { login, loading, error } = useAuth();
+
+  const handleLogin = async () => {
+    if (!email || !password) return;
+    try {
+      await login(email, password);
+
+      router.replace("/(app)/home");
+    } catch {
+
+    }
+  };
 
   return (
     <ScreenContainer>
@@ -33,14 +45,10 @@ export default function LoginScreen() {
           <View className="flex-1 justify-center">
             {/* HEADER: Logo + título */}
             <View className="mb-8 items-center">
-              {/* Logo */}
               <LogoS width={90} height={90} />
-
-              {/* Título */}
               <Text className="mt-4 text-3xl font-extrabold text-slate-50">
                 ChatHive
               </Text>
-
               <Text className="mt-2 text-sm text-slate-400 text-center">
                 Inicia sesión para entrar a tu panel de conversación.
               </Text>
@@ -86,10 +94,21 @@ export default function LoginScreen() {
                 />
               </View>
 
-              {/* Botón (solo diseño) */}
-              <TouchableOpacity className="mt-3 h-11 items-center justify-center rounded-full bg-blue-600 active:bg-blue-500">
+              {/* Error */}
+              {error && (
+                <Text className="mt-2 text-xs text-red-400">{error}</Text>
+              )}
+
+              {/* Botón */}
+              <TouchableOpacity
+                className={`mt-3 h-11 items-center justify-center rounded-full ${
+                  loading ? "bg-blue-900" : "bg-blue-600 active:bg-blue-500"
+                }`}
+                onPress={handleLogin}
+                disabled={loading}
+              >
                 <Text className="text-sm font-semibold text-slate-50">
-                  Ingresar
+                  {loading ? "Ingresando..." : "Ingresar"}
                 </Text>
               </TouchableOpacity>
 
